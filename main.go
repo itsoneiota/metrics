@@ -6,13 +6,22 @@ import (
 	"github.com/cactus/go-statsd-client/statsd"
 )
 
-// Metrics interface
-type Metrics interface {
+type metricPublisher interface {
 	Inc(statName string, value int64)
 }
 
-// MetricClient - wrapper
-type MetricClient struct {
+// MetricPublisher -
+type MetricPublisher struct {
+	mc MetricClient
+}
+
+// MetricClient -
+type MetricClient interface {
+	Inc(statName string, value int64)
+}
+
+// StatsdMetricClient - wrapper
+type StatsdMetricClient struct {
 	Client statsd.Statter
 }
 
@@ -21,24 +30,29 @@ type MockMetricClient struct {
 	MetricMap map[string]int64
 }
 
-// NewMetricsClient - prefx should be service name
-func NewMetricsClient(host string, prefix string) *MetricClient {
+// NewMetricPublisher -
+func NewMetricPublisher(mc MetricClient) *MetricPublisher {
+	return &MetricPublisher{mc: mc}
+}
+
+// NewStatsdMetricsClient - prefx should be service name
+func NewStatsdMetricsClient(host string, prefix string) *StatsdMetricClient {
 	mtrcs, err := statsd.NewBufferedClient(host, prefix, 300*time.Millisecond, 0)
 	if err != nil {
 		panic("Error creating Metrics client.")
 	}
-	mclient := MetricClient{Client: mtrcs}
+	mclient := StatsdMetricClient{Client: mtrcs}
 	return &mclient
 }
 
-// NewMockMetricsClient - creates mock client
+// NewMockMetricsClient -
 func NewMockMetricsClient() *MockMetricClient {
 	mockClient := MockMetricClient{MetricMap: make(map[string]int64)}
 	return &mockClient
 }
 
 // Inc - increment metric
-func (mClient MetricClient) Inc(metricName string, value int64) {
+func (mClient StatsdMetricClient) Inc(metricName string, value int64) {
 	mClient.Client.Inc(metricName, value, 1.0)
 }
 
