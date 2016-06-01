@@ -6,11 +6,11 @@ func TestMockMetricTypeEquals(t *testing.T) {
 	client := NewMockMetricsClient()
 	mPub := NewMetricPublisher(client)
 
-	mPub.mc.Inc("TestMetric", 1)
+	mPub.Client.Inc("TestMetric", 1)
 	assertEquals(1, client.MetricMap["TestMetric"], t)
-	mPub.mc.Inc("TestMetric", 1)
+	mPub.Client.Inc("TestMetric", 1)
 	assertEquals(2, client.MetricMap["TestMetric"], t)
-	mPub.mc.Inc("TestMetric", 5)
+	mPub.Client.Inc("TestMetric", 5)
 	assertEquals(7, client.MetricMap["TestMetric"], t)
 }
 

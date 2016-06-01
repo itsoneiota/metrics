@@ -1,10 +1,6 @@
 package metrics // import "github.com/itsoneiota/metrics"
 
-import (
-	"time"
-
-	"github.com/cactus/go-statsd-client/statsd"
-)
+import "github.com/cactus/go-statsd-client/statsd"
 
 type metricPublisher interface {
 	Inc(statName string, value int64)
@@ -12,7 +8,7 @@ type metricPublisher interface {
 
 // MetricPublisher -
 type MetricPublisher struct {
-	mc MetricClient
+	Client MetricClient
 }
 
 // MetricClient -
@@ -32,12 +28,12 @@ type MockMetricClient struct {
 
 // NewMetricPublisher -
 func NewMetricPublisher(mc MetricClient) *MetricPublisher {
-	return &MetricPublisher{mc: mc}
+	return &MetricPublisher{Client: mc}
 }
 
 // NewStatsdMetricsClient - prefx should be service name
 func NewStatsdMetricsClient(host string, prefix string) *StatsdMetricClient {
-	mtrcs, err := statsd.NewBufferedClient(host, prefix, 300*time.Millisecond, 0)
+	mtrcs, err := statsd.NewClient(host, prefix)
 	if err != nil {
 		panic("Error creating Metrics client.")
 	}
